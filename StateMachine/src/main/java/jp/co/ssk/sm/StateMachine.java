@@ -64,7 +64,7 @@ public abstract class StateMachine {
         return mHandler;
     }
 
-    protected void addState(@NonNull final State state) {
+    protected void addState(@NonNull State state) {
         addState(state, null);
     }
 
@@ -248,13 +248,13 @@ public abstract class StateMachine {
                 break;
             }
             log("invokeExitMethods: " + tempStateInfo.state.getName());
-            tempStateInfo.state.exit();
+            tempStateInfo.state.exit(this);
             tempStateInfo.active = false;
             mStateStack.pollFirst();
         }
         for (StateInfo stateInfo : destStateDeque) {
             log("invokeEnterMethods: " + stateInfo.state.getName());
-            stateInfo.state.enter();
+            stateInfo.state.enter(this);
             stateInfo.active = true;
             mStateStack.offerFirst(stateInfo);
         }
@@ -264,7 +264,7 @@ public abstract class StateMachine {
     private void _processMessage(@NonNull Message msg) {
         for (StateInfo stateInfo : mStateStack) {
             outputProcessMessageLog(stateInfo.state.getName(), msg);
-            if (stateInfo.state.processMessage(msg)) {
+            if (stateInfo.state.processMessage(this, msg)) {
                 break;
             }
         }

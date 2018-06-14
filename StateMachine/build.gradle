@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
-def VERSION_CODE = 2
-def VERSION_NAME = "1.0.1"
+def VERSION_CODE = 3
+def VERSION_NAME = "1.0.2"
 
 android {
     compileSdkVersion 27
@@ -47,7 +47,7 @@ repositories {
 
 dependencies {
     api 'jp.co.ssk.support:utility:1.0.1'
-    implementation 'com.android.support:support-annotations:27.1.1'
+    api 'com.android.support:support-annotations:27.1.1'
 }
 
 def repo = new File(rootDir, "repository")

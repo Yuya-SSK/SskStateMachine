@@ -125,265 +125,217 @@ final class SampleStateMachine extends StateMachine {
         mListener.onStateChanged(sampleState);
     }
 
-    private class DefaultState extends State {
+    private static class DefaultState extends State<SampleStateMachine> {
         @Override
-        public boolean processMessage(@NonNull Message msg) {
+        public boolean processMessage(@NonNull SampleStateMachine owner, @NonNull Message msg) {
             return StateMachine.HANDLED;
         }
     }
 
-    private class InactiveState extends State {
+    private static class InactiveState extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.InactiveState);
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.InactiveState);
         }
         @Override
-        public boolean processMessage(@NonNull Message msg) {
+        public boolean processMessage(@NonNull SampleStateMachine owner, @NonNull Message msg) {
             boolean ret = StateMachine.NOT_HANDLED;
             switch (Event.values()[msg.what]) {
                 case Activate:
                     ret = StateMachine.HANDLED;
-                    transitionTo(mUnconnected1State);
+                    owner.transitionTo(owner.mUnconnected1State);
                     break;
             }
             return ret;
         }
     }
 
-    private class ActiveState extends State {
+    private static class ActiveState extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.ActiveState);
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.ActiveState);
         }
         @Override
-        public boolean processMessage(@NonNull Message msg) {
+        public boolean processMessage(@NonNull SampleStateMachine owner, @NonNull Message msg) {
             boolean ret = StateMachine.NOT_HANDLED;
             switch (Event.values()[msg.what]) {
                 case Deactivate:
                     ret = StateMachine.HANDLED;
-                    transitionTo(mInactiveState);
+                    owner.transitionTo(owner.mInactiveState);
                     break;
             }
             return ret;
         }
     }
 
-    private class UnconnectedState extends State {
+    private static class UnconnectedState extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.UnconnectedState);
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.UnconnectedState);
         }
         @Override
-        public boolean processMessage(@NonNull Message msg) {
+        public boolean processMessage(@NonNull SampleStateMachine owner, @NonNull Message msg) {
             boolean ret = StateMachine.NOT_HANDLED;
             switch (Event.values()[msg.what]) {
                 case Connect:
                     ret = StateMachine.HANDLED;
-                    transitionTo(mConnecting1State);
+                    owner.transitionTo(owner.mConnecting1State);
                     break;
             }
             return ret;
         }
     }
 
-    private class Unconnected1State extends State {
+    private static class Unconnected1State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Unconnected1State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Unconnected1State);
         }
     }
 
-    private class Unconnected2State extends State {
+    private static class Unconnected2State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Unconnected2State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Unconnected2State);
         }
     }
 
-    private class Unconnected3State extends State {
+    private static class Unconnected3State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Unconnected3State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Unconnected3State);
         }
     }
 
-    private class ConnectingState extends State {
+    private static class ConnectingState extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.ConnectingState);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.ConnectingState);
         }
     }
 
-    private class Connecting1State extends State {
+    private static class Connecting1State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Connecting1State);
-            sendMessageDelayed(Event.Conn1Comp.ordinal(), 1000);
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Connecting1State);
+            owner.sendMessageDelayed(Event.Conn1Comp.ordinal(), 1000);
         }
         @Override
-        public void exit() {
-            removeMessages(Event.Conn1Comp.ordinal());
+        public void exit(@NonNull SampleStateMachine owner) {
+            owner.removeMessages(Event.Conn1Comp.ordinal());
         }
         @Override
-        public boolean processMessage(@NonNull Message msg) {
+        public boolean processMessage(@NonNull SampleStateMachine owner, @NonNull Message msg) {
             boolean ret = StateMachine.NOT_HANDLED;
             switch (Event.values()[msg.what]) {
                 case Conn1Comp:
                     ret = StateMachine.HANDLED;
-                    transitionTo(mConnecting2State);
+                    owner.transitionTo(owner.mConnecting2State);
                     break;
             }
             return ret;
         }
     }
 
-    private class Connecting2State extends State {
+    private static class Connecting2State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Connecting2State);
-            sendMessageDelayed(Event.Conn2Comp.ordinal(), 1000);
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Connecting2State);
+            owner.sendMessageDelayed(Event.Conn2Comp.ordinal(), 1000);
         }
         @Override
-        public void exit() {
-            removeMessages(Event.Conn2Comp.ordinal());
+        public void exit(@NonNull SampleStateMachine owner) {
+            owner.removeMessages(Event.Conn2Comp.ordinal());
         }
         @Override
-        public boolean processMessage(@NonNull Message msg) {
+        public boolean processMessage(@NonNull SampleStateMachine owner, @NonNull Message msg) {
             boolean ret = StateMachine.NOT_HANDLED;
             switch (Event.values()[msg.what]) {
                 case Conn2Comp:
                     ret = StateMachine.HANDLED;
-                    transitionTo(mConnecting3State);
+                    owner.transitionTo(owner.mConnecting3State);
                     break;
             }
             return ret;
         }
     }
 
-    private class Connecting3State extends State {
+    private static class Connecting3State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Connecting3State);
-            sendMessageDelayed(Event.Conn3Comp.ordinal(), 1000);
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Connecting3State);
+            owner.sendMessageDelayed(Event.Conn3Comp.ordinal(), 1000);
         }
         @Override
-        public void exit() {
-            removeMessages(Event.Conn3Comp.ordinal());
+        public void exit(@NonNull SampleStateMachine owner) {
+            owner.removeMessages(Event.Conn3Comp.ordinal());
         }
         @Override
-        public boolean processMessage(@NonNull Message msg) {
+        public boolean processMessage(@NonNull SampleStateMachine owner, @NonNull Message msg) {
             boolean ret = StateMachine.NOT_HANDLED;
             switch (Event.values()[msg.what]) {
                 case Conn3Comp:
                     ret = StateMachine.HANDLED;
-                    transitionTo(mConnected3State);
+                    owner.transitionTo(owner.mConnected3State);
                     break;
             }
             return ret;
         }
     }
 
-    private class ConnectedState extends State {
+    private static class ConnectedState extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.ConnectedState);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.ConnectedState);
         }
     }
 
-    private class Connected1State extends State {
+    private static class Connected1State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Connected1State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Connected1State);
         }
     }
 
-    private class Connected2State extends State {
+    private static class Connected2State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Connected2State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Connected2State);
         }
     }
 
-    private class Connected3State extends State {
+    private static class Connected3State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Connected3State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Connected3State);
         }
     }
 
-    private class DisconnectingState extends State {
+    private static class DisconnectingState extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.DisconnectingState);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.DisconnectingState);
         }
     }
 
-    private class Disconnecting1State extends State {
+    private static class Disconnecting1State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Disconnecting1State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Disconnecting1State);
         }
     }
 
-    private class Disconnecting2State extends State {
+    private static class Disconnecting2State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Disconnecting2State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Disconnecting2State);
         }
     }
 
-    private class Disconnecting3State extends State {
+    private static class Disconnecting3State extends State<SampleStateMachine> {
         @Override
-        public void enter() {
-            _setSampleState(SampleState.Disconnecting3State);
-        }
-        @Override
-        public boolean processMessage(@NonNull Message msg) {
-            return StateMachine.NOT_HANDLED;
+        public void enter(@NonNull SampleStateMachine owner) {
+            owner._setSampleState(SampleState.Disconnecting3State);
         }
     }
 }
