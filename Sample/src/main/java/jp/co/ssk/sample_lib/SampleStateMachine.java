@@ -238,7 +238,7 @@ final class SampleStateMachine extends StateMachine {
         }
         @Override
         public void exit() {
-            removeMessage(Event.Conn1Comp.ordinal());
+            removeMessages(Event.Conn1Comp.ordinal());
         }
         @Override
         public boolean processMessage(@NonNull Message msg) {
@@ -261,7 +261,7 @@ final class SampleStateMachine extends StateMachine {
         }
         @Override
         public void exit() {
-            removeMessage(Event.Conn2Comp.ordinal());
+            removeMessages(Event.Conn2Comp.ordinal());
         }
         @Override
         public boolean processMessage(@NonNull Message msg) {
@@ -284,7 +284,7 @@ final class SampleStateMachine extends StateMachine {
         }
         @Override
         public void exit() {
-            removeMessage(Event.Conn3Comp.ordinal());
+            removeMessages(Event.Conn3Comp.ordinal());
         }
         @Override
         public boolean processMessage(@NonNull Message msg) {

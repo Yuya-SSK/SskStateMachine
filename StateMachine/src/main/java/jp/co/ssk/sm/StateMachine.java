@@ -38,6 +38,7 @@ public abstract class StateMachine {
     private State mDestState;
     @Nullable
     private Message mCurrentMessage;
+    @NonNull
     private AtomicBoolean mDbg = new AtomicBoolean(false);
 
     protected StateMachine() {
@@ -176,12 +177,12 @@ public abstract class StateMachine {
         mHandler.sendMessageDelayed(what, obj, delayMillis);
     }
 
-    protected boolean hasMessage(int what) {
-        return mHandler.hasMessage(what);
+    protected boolean hasMessages(int what) {
+        return mHandler.hasMessages(what);
     }
 
-    protected void removeMessage(int what) {
-        mHandler.removeMessage(what);
+    protected void removeMessages(int what) {
+        mHandler.removeMessages(what);
     }
 
     protected final void deferMessage(@NonNull final Message msg) {
@@ -192,11 +193,11 @@ public abstract class StateMachine {
         }
     }
 
-    protected final void removeDeferredMessage(final int what) {
+    protected final void removeDeferredMessages(final int what) {
         if (mHandler.isCurrentThread()) {
-            _removeDeferredMessage(what);
+            _removeDeferredMessages(what);
         } else {
-            mHandler.post(() -> _removeDeferredMessage(what));
+            mHandler.post(() -> _removeDeferredMessages(what));
         }
     }
 
@@ -220,11 +221,7 @@ public abstract class StateMachine {
                 parentStateInfo = _addState(parent, null);
             }
         }
-        StateInfo stateInfo = new StateInfo();
-        stateInfo.state = state;
-        stateInfo.parentStateInfo = parentStateInfo;
-        stateInfo.active = false;
-        return mStateInfoMap.put(state, stateInfo);
+        return mStateInfoMap.put(state, new StateInfo(state, parentStateInfo));
     }
 
     private void _start() {
@@ -264,7 +261,7 @@ public abstract class StateMachine {
         _moveDeferredMessageAtFrontOfQueue();
     }
 
-    private void _processMessage(Message msg) {
+    private void _processMessage(@NonNull Message msg) {
         for (StateInfo stateInfo : mStateStack) {
             outputProcessMessageLog(stateInfo.state.getName(), msg);
             if (stateInfo.state.processMessage(msg)) {
@@ -295,7 +292,7 @@ public abstract class StateMachine {
         mDeferredMessages.add(newMsg);
     }
 
-    private void _removeDeferredMessage(int what) {
+    private void _removeDeferredMessages(int what) {
         mDeferredMessages.removeIf(msg -> msg.what == what);
     }
 
@@ -309,14 +306,21 @@ public abstract class StateMachine {
     }
 
     private static class StateInfo {
-        private State state;
-        private StateInfo parentStateInfo;
+        @NonNull
+        private final State state;
+        @Nullable
+        private final StateInfo parentStateInfo;
         private boolean active;
+
+        public StateInfo(@NonNull State state, @Nullable StateInfo parentStateInfo) {
+            this.state = state;
+            this.parentStateInfo = parentStateInfo;
+            this.active = false;
+        }
 
         @Override
         public String toString() {
-            String str = "{";
-            str += "state=" + state;
+            String str = "{state=" + state;
             if (parentStateInfo != null) {
                 str += ", parent=" + parentStateInfo.state;
             }

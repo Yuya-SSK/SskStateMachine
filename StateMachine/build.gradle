@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 
+def VERSION_CODE = 2
+def VERSION_NAME = "1.0.1"
+
 android {
     compileSdkVersion 27
 
@@ -11,9 +14,8 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.0.0"
-        version = android.defaultConfig.versionName
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
     }
 
     buildTypes {
@@ -31,9 +33,9 @@ android {
         variant.outputs.all { output ->
             output.packageLibrary.exclude("libs/*")
             if (variant.name == android.buildTypes.release.name) {
-                outputFileName = output.outputFile.name.replace(("-release.aar"), "-${version}.aar")
+                outputFileName = output.outputFile.name.replace(("-release.aar"), "-${VERSION_NAME}.aar")
             } else if (variant.name == android.buildTypes.debug.name) {
-                outputFileName = output.outputFile.name.replace((".aar"), "-${version}.aar")
+                outputFileName = output.outputFile.name.replace((".aar"), "-${VERSION_NAME}.aar")
             }
         }
     }
@@ -44,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'jp.co.ssk.support:utility:1.0.0'
+    api 'jp.co.ssk.support:utility:1.0.1'
     implementation 'com.android.support:support-annotations:27.1.1'
 }
 
@@ -56,7 +58,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository url: "file://${repo.absolutePath}"
-            pom.version = '1.0.0'
+            pom.version = VERSION_NAME
             pom.groupId = 'jp.co.ssk.support'
             pom.artifactId = 'state-machine'
         }
