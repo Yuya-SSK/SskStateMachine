@@ -14,9 +14,9 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import jp.co.ssk.utility.Cast;
 import jp.co.ssk.utility.Handler;
 import jp.co.ssk.utility.SynchronousCallback;
-import jp.co.ssk.utility.Cast;
 
 @SuppressWarnings({"all"})
 public abstract class StateMachine {
@@ -53,7 +53,7 @@ public abstract class StateMachine {
         }
         mHandler = new Handler(looper) {
             @Override
-            protected void handleMessage(@NonNull Message msg) {
+            public void handleMessage(@NonNull Message msg) {
                 _handleMessage(msg);
             }
         };
@@ -157,6 +157,26 @@ public abstract class StateMachine {
         mHandler.sendMessage(what, obj);
     }
 
+    protected void sendMessageSyncIf(int what) {
+        mHandler.sendMessageSyncIf(what);
+    }
+
+    protected void sendMessageSyncIf(int what, int arg1) {
+        mHandler.sendMessageSyncIf(what, arg1);
+    }
+
+    protected void sendMessageSyncIf(int what, int arg1, int arg2) {
+        mHandler.sendMessageSyncIf(what, arg1, arg2);
+    }
+
+    protected void sendMessageSyncIf(int what, int arg1, int arg2, @Nullable Object obj) {
+        mHandler.sendMessageSyncIf(what, arg1, arg2, obj);
+    }
+
+    protected void sendMessageSyncIf(int what, @Nullable Object obj) {
+        mHandler.sendMessageSyncIf(what, obj);
+    }
+
     protected void sendMessageDelayed(int what, long delayMillis) {
         mHandler.sendMessageDelayed(what, delayMillis);
     }
@@ -201,7 +221,15 @@ public abstract class StateMachine {
         }
     }
 
-    protected void outputProcessMessageLog(@NonNull String currentStateName, @NonNull Message msg) {
+    protected void outputEnterLogTrigger(@NonNull String currentStateName) {
+        log("invokeEnterMethods: " + currentStateName);
+    }
+
+    protected void outputExitLogTrigger(@NonNull String currentStateName) {
+        log("invokeExitMethods: " + currentStateName);
+    }
+
+    protected void outputProcessMessageLogTrigger(@NonNull String currentStateName, @NonNull Message msg) {
         log("processMessage: " + currentStateName + String.format(Locale.US, " what=0x%08x", msg.what));
     }
 
@@ -247,13 +275,13 @@ public abstract class StateMachine {
             if (foundRootState != null && foundRootState == tempStateInfo.state) {
                 break;
             }
-            log("invokeExitMethods: " + tempStateInfo.state.getName());
+            outputExitLogTrigger(tempStateInfo.state.getName());
             tempStateInfo.state.exit(this);
             tempStateInfo.active = false;
             mStateStack.pollFirst();
         }
         for (StateInfo stateInfo : destStateDeque) {
-            log("invokeEnterMethods: " + stateInfo.state.getName());
+            outputEnterLogTrigger(stateInfo.state.getName());
             stateInfo.state.enter(this);
             stateInfo.active = true;
             mStateStack.offerFirst(stateInfo);
@@ -263,7 +291,7 @@ public abstract class StateMachine {
 
     private void _processMessage(@NonNull Message msg) {
         for (StateInfo stateInfo : mStateStack) {
-            outputProcessMessageLog(stateInfo.state.getName(), msg);
+            outputProcessMessageLogTrigger(stateInfo.state.getName(), msg);
             if (stateInfo.state.processMessage(this, msg)) {
                 break;
             }

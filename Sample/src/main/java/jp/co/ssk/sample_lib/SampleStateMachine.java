@@ -83,19 +83,27 @@ final class SampleStateMachine extends StateMachine {
     }
 
     public void activate() {
-        sendMessage(Event.Activate.ordinal());
+        Log.i(getName(), "[In] activate");
+        sendMessageSyncIf(Event.Activate.ordinal());
+        Log.i(getName(), "[Out] activate");
     }
 
     public void deactivate() {
-        sendMessage(Event.Deactivate.ordinal());
+        Log.i(getName(), "[In] deactivate");
+        sendMessageSyncIf(Event.Deactivate.ordinal());
+        Log.i(getName(), "[Out] deactivate");
     }
 
     public void connect() {
-        sendMessage(Event.Connect.ordinal());
+        Log.i(getName(), "[In] connect");
+        sendMessageSyncIf(Event.Connect.ordinal());
+        Log.i(getName(), "[Out] connect");
     }
 
     public void disconnect() {
-        sendMessage(Event.Disconnect.ordinal());
+        Log.i(getName(), "[In] disconnect");
+        sendMessageSyncIf(Event.Disconnect.ordinal());
+        Log.i(getName(), "[Out] disconnect");
     }
 
     @NonNull
@@ -116,7 +124,7 @@ final class SampleStateMachine extends StateMachine {
     }
 
     @Override
-    protected void outputProcessMessageLog(@NonNull String currentStateName, @NonNull Message msg) {
+    protected void outputProcessMessageLogTrigger(@NonNull String currentStateName, @NonNull Message msg) {
         Log.i(getName(), "processMessage: " + currentStateName + " " + Event.values()[msg.what]);
     }
 
