@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
-def VERSION_CODE = 4
-def VERSION_NAME = "1.0.3"
+def VERSION_CODE = 5
+def VERSION_NAME = "1.0.4"
 
 android {
     compileSdkVersion 27
@@ -46,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'jp.co.ssk.support:utility:1.0.3'
+    implementation 'jp.co.ssk.support:utility:1.0.4'
     implementation 'com.android.support:support-annotations:27.1.1'
 }
 

@@ -14,11 +14,10 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import jp.co.ssk.utility.Cast;
 import jp.co.ssk.utility.Handler;
 import jp.co.ssk.utility.SynchronousCallback;
 
-@SuppressWarnings({"all"})
+@SuppressWarnings({"unused", "WeakerAccess", "SameParameterValue"})
 public abstract class StateMachine {
 
     protected static final boolean HANDLED = State.HANDLED;
@@ -106,13 +105,13 @@ public abstract class StateMachine {
         if (mHandler.isCurrentThread()) {
             ret = mCurrentMessage;
         } else {
-            final SynchronousCallback callback = new SynchronousCallback();
+            final SynchronousCallback<Message> callback = new SynchronousCallback<>();
             mHandler.post(() -> {
                 callback.setResult(mCurrentMessage);
                 callback.unlock();
             });
             callback.lock();
-            ret = Cast.auto(callback.getResult());
+            ret = callback.getResult();
         }
         return ret;
     }
@@ -123,13 +122,13 @@ public abstract class StateMachine {
         if (mHandler.isCurrentThread()) {
             ret = mStateStack.peekFirst().state;
         } else {
-            final SynchronousCallback callback = new SynchronousCallback();
+            final SynchronousCallback<State> callback = new SynchronousCallback<>();
             mHandler.post(() -> {
                 callback.setResult(mStateStack.peekFirst().state);
                 callback.unlock();
             });
             callback.lock();
-            ret = Cast.auto(callback.getResult());
+            ret = callback.getResult();
             if (null == ret) {
                 throw new UnknownError("null == ret");
             }
@@ -259,6 +258,7 @@ public abstract class StateMachine {
         _performTransitions(mInitialState);
     }
 
+    @SuppressWarnings("unchecked")
     private void _performTransitions(@NonNull State destState) {
         StateInfo tempStateInfo = mStateInfoMap.get(destState);
         State foundRootState = null;
@@ -289,6 +289,7 @@ public abstract class StateMachine {
         _moveDeferredMessageAtFrontOfQueue();
     }
 
+    @SuppressWarnings("unchecked")
     private void _processMessage(@NonNull Message msg) {
         for (StateInfo stateInfo : mStateStack) {
             outputProcessMessageLogTrigger(stateInfo.state.getName(), msg);
