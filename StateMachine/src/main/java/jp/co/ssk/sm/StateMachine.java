@@ -46,7 +46,7 @@ public abstract class StateMachine {
 
     protected StateMachine(@Nullable Looper looper) {
         if (null == looper) {
-            HandlerThread thread = new HandlerThread(getName() + "-Thread");
+            HandlerThread thread = new HandlerThread(getName());
             thread.start();
             looper = thread.getLooper();
         }
@@ -128,10 +128,29 @@ public abstract class StateMachine {
                 callback.unlock();
             });
             callback.lock();
-            ret = callback.getResult();
-            if (null == ret) {
-                throw new UnknownError("null == ret");
+            if (null == callback.getResult()) {
+                throw new UnknownError("An unlikely error.");
             }
+            ret = callback.getResult();
+        }
+        return ret;
+    }
+
+    protected boolean isMatch(@NonNull State state) {
+        final boolean ret;
+        if (mHandler.isCurrentThread()) {
+            ret = _isMatch(state);
+        } else {
+            final SynchronousCallback<Boolean> callback = new SynchronousCallback<>();
+            mHandler.post(() -> {
+                callback.setResult(_isMatch(state));
+                callback.unlock();
+            });
+            callback.lock();
+            if (null == callback.getResult()) {
+                throw new UnknownError("An unlikely error.");
+            }
+            ret = callback.getResult();
         }
         return ret;
     }
@@ -220,15 +239,15 @@ public abstract class StateMachine {
         }
     }
 
-    protected void outputEnterLogTrigger(@NonNull String currentStateName) {
+    protected void outputEnterLog(@NonNull String currentStateName) {
         log("invokeEnterMethods: " + currentStateName);
     }
 
-    protected void outputExitLogTrigger(@NonNull String currentStateName) {
+    protected void outputExitLog(@NonNull String currentStateName) {
         log("invokeExitMethods: " + currentStateName);
     }
 
-    protected void outputProcessMessageLogTrigger(@NonNull String currentStateName, @NonNull Message msg) {
+    protected void outputMessageLog(@NonNull String currentStateName, @NonNull Message msg) {
         log("processMessage: " + currentStateName + String.format(Locale.US, " what=0x%08x", msg.what));
     }
 
@@ -275,13 +294,13 @@ public abstract class StateMachine {
             if (foundRootState != null && foundRootState == tempStateInfo.state) {
                 break;
             }
-            outputExitLogTrigger(tempStateInfo.state.getName());
+            outputExitLog(tempStateInfo.state.getName());
             tempStateInfo.state.exit(this);
             tempStateInfo.active = false;
             mStateStack.pollFirst();
         }
         for (StateInfo stateInfo : destStateDeque) {
-            outputEnterLogTrigger(stateInfo.state.getName());
+            outputEnterLog(stateInfo.state.getName());
             stateInfo.state.enter(this);
             stateInfo.active = true;
             mStateStack.offerFirst(stateInfo);
@@ -292,7 +311,7 @@ public abstract class StateMachine {
     @SuppressWarnings("unchecked")
     private void _processMessage(@NonNull Message msg) {
         for (StateInfo stateInfo : mStateStack) {
-            outputProcessMessageLogTrigger(stateInfo.state.getName(), msg);
+            outputMessageLog(stateInfo.state.getName(), msg);
             if (stateInfo.state.processMessage(this, msg)) {
                 break;
             }
@@ -323,6 +342,17 @@ public abstract class StateMachine {
 
     private void _removeDeferredMessages(int what) {
         mDeferredMessages.removeIf(msg -> msg.what == what);
+    }
+
+    private boolean _isMatch(@NonNull State state) {
+        boolean ret = false;
+        for (StateInfo currentStateInfo : mStateStack) {
+            if (currentStateInfo.state == state) {
+                ret = true;
+                break;
+            }
+        }
+        return ret;
     }
 
     @NonNull
