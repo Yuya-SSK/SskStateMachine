@@ -124,7 +124,7 @@ final class SampleStateMachine extends StateMachine {
     }
 
     @Override
-    protected void outputProcessMessageLogTrigger(@NonNull String currentStateName, @NonNull Message msg) {
+    protected void outputMessageLog(@NonNull String currentStateName, @NonNull Message msg) {
         Log.i(getName(), "processMessage: " + currentStateName + " " + Event.values()[msg.what]);
     }
 

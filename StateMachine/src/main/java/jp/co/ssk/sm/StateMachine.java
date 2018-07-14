@@ -8,9 +8,11 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -20,8 +22,8 @@ import jp.co.ssk.utility.SynchronousCallback;
 @SuppressWarnings({"unused", "WeakerAccess", "SameParameterValue"})
 public abstract class StateMachine {
 
-    protected static final boolean HANDLED = State.HANDLED;
-    protected static final boolean NOT_HANDLED = State.NOT_HANDLED;
+    protected static final boolean HANDLED = true;
+    protected static final boolean NOT_HANDLED = false;
 
     @NonNull
     private final Handler mHandler;
@@ -136,14 +138,14 @@ public abstract class StateMachine {
         return ret;
     }
 
-    protected boolean isMatch(@NonNull State state) {
+    protected boolean contains(@NonNull State state) {
         final boolean ret;
         if (mHandler.isCurrentThread()) {
-            ret = _isMatch(state);
+            ret = _contains(state);
         } else {
             final SynchronousCallback<Boolean> callback = new SynchronousCallback<>();
             mHandler.post(() -> {
-                callback.setResult(_isMatch(state));
+                callback.setResult(_contains(state));
                 callback.unlock();
             });
             callback.lock();
@@ -294,13 +296,13 @@ public abstract class StateMachine {
             if (foundRootState != null && foundRootState == tempStateInfo.state) {
                 break;
             }
-            outputExitLog(tempStateInfo.state.getName());
+            outputExitLog(tempStateInfo.state.name());
             tempStateInfo.state.exit(this);
             tempStateInfo.active = false;
             mStateStack.pollFirst();
         }
         for (StateInfo stateInfo : destStateDeque) {
-            outputEnterLog(stateInfo.state.getName());
+            outputEnterLog(stateInfo.state.name());
             stateInfo.state.enter(this);
             stateInfo.active = true;
             mStateStack.offerFirst(stateInfo);
@@ -311,7 +313,7 @@ public abstract class StateMachine {
     @SuppressWarnings("unchecked")
     private void _processMessage(@NonNull Message msg) {
         for (StateInfo stateInfo : mStateStack) {
-            outputMessageLog(stateInfo.state.getName(), msg);
+            outputMessageLog(stateInfo.state.name(), msg);
             if (stateInfo.state.processMessage(this, msg)) {
                 break;
             }
@@ -341,10 +343,18 @@ public abstract class StateMachine {
     }
 
     private void _removeDeferredMessages(int what) {
-        mDeferredMessages.removeIf(msg -> msg.what == what);
+        List<Message> removes = new ArrayList<>();
+        for (Message msg : mDeferredMessages) {
+            if (msg.what == what) {
+                removes.add(msg);
+            }
+        }
+        for (Message msg : removes) {
+            mDeferredMessages.remove(msg);
+        }
     }
 
-    private boolean _isMatch(@NonNull State state) {
+    private boolean _contains(@NonNull State state) {
         boolean ret = false;
         for (StateInfo currentStateInfo : mStateStack) {
             if (currentStateInfo.state == state) {
@@ -379,9 +389,9 @@ public abstract class StateMachine {
 
         @Override
         public String toString() {
-            String str = "{state=" + state;
+            String str = "{state=" + state.name();
             if (parentStateInfo != null) {
-                str += ", parent=" + parentStateInfo.state;
+                str += ", parent=" + parentStateInfo.state.name();
             }
             str = str + ", active=" + active;
             str += '}';
